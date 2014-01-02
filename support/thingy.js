@@ -84,8 +84,10 @@
     });
     */
     for (i = 0; i < fns.length; i += 1) {
-      fn = fns[i];
-      __hackFn(fn, JSON.parse(JSON.stringify(args)));
+      window.fn = fns[i];
+      //__hackFn(window.fn, 178, JSON.parse(JSON.stringify(args)));
+      //window.fn.apply(null, [178, JSON.parse(JSON.stringify(args))]);
+      window.fn.apply(null, [1, JSON.parse(JSON.stringify(args)), 4]);
     }
   };
 
