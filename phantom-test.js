@@ -19,12 +19,16 @@
       };
 
       page.open('http://localhost', function (/*err, status*/) {
+        
+      });
+
+      page.onLoadFinished = function () {
         var emitter = new PhantomEmitter(page, 'foo-emitter', fs.readFileSync(clientTestJs, 'utf8'))
           ;
 
         setInterval(function () {
           emitter.emit('node', 'Hate', 'cheesecakes');
-        }, 2000);
+        }, 3000);
 
         emitter.on('node', function (a, b) {
           console.log('[node]', a, b);
@@ -53,7 +57,7 @@
           //emitter.emit('fromPhantom2', 'Hate', 'cheesecakes');
         });
         */
-      });
+      };
     });
   }, { parameters: {} });
 }());

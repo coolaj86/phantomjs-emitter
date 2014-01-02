@@ -156,8 +156,7 @@
   window.__hackFn = function (fn, args) {
     fn(args);
   };
-}());
-(function () {
+
   //'use strict';
 
   window.callPhantom(['phantom is happening', '!']);

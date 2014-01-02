@@ -62,22 +62,15 @@
       }
     };
     page.__phantomEmitter.loadedScripts[clientLibPath] = true;
-    /*
-    page.evaluate('function () { \n'
-      + fs.readFileSync(clientLibPath, 'utf8')
-      + ';\n;'
-      + jsScript
-      + ';\n'
-    , done);
-    */
-    //page.injectJs(fs.readFileSync(clientLibPath, 'utf8'), done);
-    
-    page.onLoadFinished = function () {
-      page.evaluate(fs.readFileSync(
+   
+    page.evaluate(
+      'function () {\n'
+    + fs.readFileSync(
         path.join(__dirname, 'support', 'thingy.js')
       , 'utf8'
-      ));
-    };
+      )
+    + '}'
+    );
   };
 
   NodePhantomEmitter.create = function (_id) {
@@ -133,7 +126,7 @@
 
     setTimeout(function () {
       me._page.evaluate(fnStr, function () {});
-    }, 100);
+    }, 1000);
   };
 
   // provide a special emit for phantom to use
