@@ -6,16 +6,15 @@
     , phantomEmitters = {}
     , secretObj = {}
     , clientLibPath = path.join(__dirname, 'support', 'phantomjs-emitter-browser.js')
+    , fs = require('fs')
     ;
 
   function NodePhantomEmitter(page, _id) {
     if (!(this instanceof NodePhantomEmitter)) {
-      console.log('1');
       return new NodePhantomEmitter(_id);
     }
 
     if (NodePhantomEmitter.get(_id) && page === NodePhantomEmitter.get(_id)._page) {
-      console.log('2');
       return NodePhantomEmitter.get(_id);
     }
 
@@ -23,16 +22,15 @@
       ;
 
     me._listeners = {};
-    console.log('3', me._listeners);
     me._id = _id || Math.random().toString();
     me._page = page;
     me._initPage(page, function () {
-      me._emitLocally('_phantomReady');
+      me.emit('_nodeReady');
     });
     phantomEmitters[me._id] =  me;
   }
 
-  NodePhantomEmitter._initPage = function (page, done) {
+  NodePhantomEmitter._initPage = function (page, done, jsScript) {
     if (page.__phantomEmitter && page.__phantomEmitter.id === secretObj) {
       return;
     }
@@ -46,8 +44,12 @@
       page.__phantomEmitter.rawOnCallback = fn;
     });
     page.__phantomEmitter.wrappedCallback = function (obj) {
+      //console.log('wrappedCallback obj', obj);
       if (!obj || !obj.phantomEmitter) {
-        page.__phantomEmitter.rawOnCallback.apply(null, arguments);
+        if (page.__phantomEmitter.rawOnCallback) {
+          //console.log('window.emitter.emit');
+          page.__phantomEmitter.rawOnCallback.apply(null, arguments);
+        }
         return;
       }
 
@@ -55,11 +57,27 @@
         ;
 
       if (emitter) {
+        //console.log('window.callPhantom');
         emitter._emitLocally(obj.phantomEmit, obj.phantomArguments);
       }
     };
     page.__phantomEmitter.loadedScripts[clientLibPath] = true;
-    page.injectJs(clientLibPath, done);
+    /*
+    page.evaluate('function () { \n'
+      + fs.readFileSync(clientLibPath, 'utf8')
+      + ';\n;'
+      + jsScript
+      + ';\n'
+    , done);
+    */
+    //page.injectJs(fs.readFileSync(clientLibPath, 'utf8'), done);
+    
+    page.onLoadFinished = function () {
+      page.evaluate(fs.readFileSync(
+        path.join(__dirname, 'support', 'thingy.js')
+      , 'utf8'
+      ));
+    };
   };
 
   NodePhantomEmitter.create = function (_id) {
@@ -78,7 +96,6 @@
 
   // local listeners
   proto.listeners = function (event) {
-    console.log('4.3', this._listeners);
     var me = this
       , fns = me._listeners[event]
       ;
@@ -107,13 +124,16 @@
 
     me._emitLocally(event, args);
 
+    //fnStr = 'function () { window.callPhantom({ _id: ID, _event: EVENT, _args: ARGS }); }'
     fnStr = 'function () { window._emitPhantom(ID, EVENT, ARGS); }'
       .replace(/ID/, JSON.stringify(me._id))
       .replace(/EVENT/, JSON.stringify(event))
       .replace(/ARGS/, JSON.stringify(args || []))
       ;
 
-    me._page.evaluate(fnStr);
+    setTimeout(function () {
+      me._page.evaluate(fnStr, function () {});
+    }, 100);
   };
 
   // provide a special emit for phantom to use
@@ -168,16 +188,4 @@
   };
 
   module.exports = NodePhantomEmitter;
-
-  /*
-  // provide something for phantom to call
-  module.exports._emitPhantom = function (id, event, args) {
-    var emitter = NodePhantomEmitter.get(id)
-      ;
-
-    if (emitter) {
-      emitter._emitLocally(event, args);
-    }
-  };
-  */
 }());

@@ -1,19 +1,33 @@
-(function () {
-  'use strict';
+//function BrowserTest() {
+(function BrowserTest() {
+  //'use strict';
+
+  window.callPhantom(['phantom is happening', '!']);
 
   var emitter = new window.PhantomEmitter('foo-emitter')
     ;
 
-  emitter.on('_phantomReady', function (foo, bar, baz) {
-    window.callPhantom(['phantom is ready!', foo, bar, baz]);
-    emitter.emit('forPhantom', 'I', 'Love', 'JavaScript');
+  //setInterval(function () {
+    emitter.emit('browser', {I: 'AM'}, 'JavaScript');
+    emitter.emit('echoBrowser', {You: 'IS'}, 'JavaScript');
+  //}, 1000);
+
+  emitter.on('_nodeReady', function (foo, bar, baz) {
+    emitter.emit('browser', {I: 'Love'}, 'JavaScript');
+    //window.callPhantom({a: ['[browserPhantom] nodePhantom is ready!', foo, bar, baz] });
   });
 
-  emitter.on('forPhantom', function (i, love, js) {
-    window.callPhantom(['local forPhantom (loopback)', i, love, js]);
-  });
+  var xyz = function (a, b, c) {
+    // arguments have disappeared by this time
+    window.callPhantom({ ev: 'eventNode', args: {a: 'b', c: [a, b, c]} });
+    emitter.emit('echoNode', { b: 'hellololo', a: [a, b, c]});
+    //window.callPhantom(['local forPhantom (loopback)', i, love, js]);
+  }
+  emitter.on('node', xyz);
 
-  emitter.on('fromPhantom', function (a, b) {
-    window.callPhantom(['local fromPhantom', a, b]);
+  emitter.on('browser', function (d, e, f) {
+    emitter.emit('echoBrowser', d, e, f);
+    //window.callPhantom(['local forPhantom (loopback)', i, love, js]);
   });
 }());
+//}
