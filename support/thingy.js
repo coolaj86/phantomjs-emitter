@@ -48,8 +48,11 @@
   // provide a normal emit which sends events to the phantom instance
   proto.emit = function (event) {
     var me = this
-      , args = [].slice.call(arguments, 1)
+      , args = [].slice.call(arguments)
       ;
+
+    // pop the event name
+    args.shift();
 
     setTimeout(function () {
       me._emitRemotely(event, args);
@@ -87,7 +90,8 @@
       window.fn = fns[i];
       //__hackFn(window.fn, 178, JSON.parse(JSON.stringify(args)));
       //window.fn.apply(null, [178, JSON.parse(JSON.stringify(args))]);
-      window.fn.apply(null, [1, JSON.parse(JSON.stringify(args)), 4]);
+      args.push(1);
+      window.fn.apply(null, args);
     }
   };
 
@@ -155,10 +159,6 @@
     }
   };
 
-  window.__hackFn = function (fn, args) {
-    fn(args);
-  };
-
   //'use strict';
 
   window.callPhantom(['phantom is happening', '!']);
@@ -178,8 +178,7 @@
 
   var xyz = function (a, b, c) {
     // arguments have disappeared by this time
-    window.callPhantom({ ev: 'eventNode', args: {a: 'b', c: [a, b, c]} });
-    emitter.emit('echoNode', { b: 'hellololo', a: [a, b, c]});
+    emitter.emit('echoNode', a, b, c);
     //window.callPhantom(['local forPhantom (loopback)', i, love, js]);
   }
   emitter.on('node', xyz);

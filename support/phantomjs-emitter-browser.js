@@ -153,9 +153,5 @@
       window.callPhantom({ _id: emitter._id, _event: event, _args: args });
     }
   };
-
-  window.__hackFn = function (fn, args) {
-    fn(args);
-  };
 }());
 //}
