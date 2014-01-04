@@ -102,6 +102,7 @@
       me.listeners(event).push(fn);
     }
   };
+  proto.addListener = proto.on;
 
   // stop receiving
   proto.off = function (event, fn) {
@@ -115,6 +116,7 @@
       }
     });
   };
+  proto.removeListener = proto.off;
 
   // call on and then off immediately after
   proto.once = function (event, fn) {
