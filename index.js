@@ -6,7 +6,6 @@
     , phantomEmitters = {}
     , secretObj = {}
     , clientLibPath = path.join(__dirname, 'support', 'phantomjs-emitter-browser.js')
-    , fs = require('fs')
     ;
 
   function NodePhantomEmitter(page, _id) {
@@ -30,7 +29,7 @@
     phantomEmitters[me._id] =  me;
   }
 
-  NodePhantomEmitter._initPage = function (page, done, jsScript) {
+  NodePhantomEmitter._initPage = function (page, done) {
     if (page.__phantomEmitter && page.__phantomEmitter.id === secretObj) {
       return;
     }
@@ -44,10 +43,8 @@
       page.__phantomEmitter.rawOnCallback = fn;
     });
     page.__phantomEmitter.wrappedCallback = function (obj) {
-      //console.log('wrappedCallback obj', obj);
       if (!obj || !obj.phantomEmitter) {
         if (page.__phantomEmitter.rawOnCallback) {
-          //console.log('window.emitter.emit');
           page.__phantomEmitter.rawOnCallback.apply(null, arguments);
         }
         return;
@@ -57,20 +54,14 @@
         ;
 
       if (emitter) {
-        //console.log('window.callPhantom');
         emitter._emitLocally(obj.phantomEmit, obj.phantomArguments);
+      } else {
+        // handle error?
       }
     };
     page.__phantomEmitter.loadedScripts[clientLibPath] = true;
    
-    page.evaluate(
-      'function () {\n'
-    + fs.readFileSync(
-        path.join(__dirname, 'support', 'thingy.js')
-      , 'utf8'
-      )
-    + '}'
-    );
+    page.injectJs(clientLibPath, done);
   };
 
   NodePhantomEmitter.create = function (_id) {
@@ -124,9 +115,7 @@
       .replace(/ARGS/, JSON.stringify(args || []))
       ;
 
-    setTimeout(function () {
-      me._page.evaluate(fnStr, function () {});
-    }, 1000);
+    me._page.evaluate(fnStr, function () {});
   };
 
   // provide a special emit for phantom to use

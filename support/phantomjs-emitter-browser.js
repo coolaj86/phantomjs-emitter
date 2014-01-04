@@ -1,6 +1,5 @@
-//function PhantomEmitterBrowser() {
-(function PhantomEmitterBrowser() {
-  //'use strict';
+(function () {
+  'use strict';
 
   var proto
     , phantomEmitters = {}
@@ -62,32 +61,28 @@
     var me = this
       ;
 
+    if (42 === args[args.length - 1]) {
+      args.pop();
+    } else {
+      console.error('forgot to update the 42');
+    }
+
     window.callPhantom(
       { phantomEmit: event
       , phantomEmitter: me._id
-      , phantomArguments: args || []
+      , phantomArguments: args
       }
     );
   };
   // provide a special emit for phantom to use
   proto._emitLocally = function (event, args) {
     var me = this
-      , fns = me.listeners(event)
-      , fn
-      , i
       ;
 
-    /*
+    args.push(42);
     me.listeners(event).forEach(function (fn) {
-      //fn = window.eval('window.__TMP_FN__ = ' + fn.toString());
-      //window.__TMP_FN__(1,'b');
-      fn.apply(null, JSON.parse(JSON.stringify(args)));
+      fn.apply(null, args);
     });
-    */
-    for (i = 0; i < fns.length; i += 1) {
-      fn = fns[i];
-      __hackFn(fn, JSON.parse(JSON.stringify(args)));
-    }
   };
 
   // receive from the phantom instance
@@ -147,11 +142,9 @@
       ;
 
     if (emitter) {
-      window.callPhantom({ ev: 'evPh', args: args, t: (typeof args).toString() });
       emitter._emitLocally(event, args);
     } else {
       window.callPhantom({ _id: emitter._id, _event: event, _args: args });
     }
   };
 }());
-//}
