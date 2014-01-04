@@ -1,6 +1,6 @@
 {
   "name": "phantom-emitter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An event emitter between the browser and node side of PhantomJS",
   "main": "index.js",
   "scripts": {
