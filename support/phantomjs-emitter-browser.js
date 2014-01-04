@@ -61,6 +61,7 @@
     var me = this
       ;
 
+    // this undoes the arguments mangling
     if (42 === args[args.length - 1]) {
       args.pop();
     } else {
@@ -79,6 +80,9 @@
     var me = this
       ;
 
+    // there's a bug in the phantom VM that requires
+    // that an integer argument be passed or the function
+    // call doesn't pass the arguments... weird, huh?
     args.push(42);
     me.listeners(event).forEach(function (fn) {
       fn.apply(null, args);
