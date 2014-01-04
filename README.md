@@ -1,7 +1,13 @@
 phantomjs-emitter
 =================
 
-An event emitter you can use between the browser and node side of PhantomJS (when using `node-phantom-simple`).
+An event emitter you can use between the browser and node side of PhantomJS.
+
+Works with in PhantomJS or node with any of the following modules:
+
+  * `node-phantom-simple` (used in the examples given here)
+  * `node-phantom` (works, but overcomplicated)
+  * `phantom` (isn't very complete, doesn't work very well)
 
 This thin wrapper around `window.callPhantom` and `page.evaluate` has (almost exactly)
 the same API as node's `EventEmitter`
@@ -81,3 +87,18 @@ Phantom.create(function (err, phantom) {
 });
 ```
 
+Tricks & Hacks
+===
+
+As long as the `page` object of whatever module
+you're using supports the following methods, you're good.
+If not, you'll need to wrap whatever you have to provide that functionality.
+
+  * onCallback
+  * evaluate
+  * inejectJs
+
+There's an issue where sometimes calling a function in Phantom
+will fail to pass arguments, that's why there's some arguments
+mangling with the number 42. If you're using this module, you
+probably won't encounter that bug. Otherwise you inevitably will.

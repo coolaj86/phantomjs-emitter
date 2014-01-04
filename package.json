@@ -20,8 +20,5 @@
   "license": "Apache-v2",
   "bugs": {
     "url": "https://github.com/coolaj86/phantomjs-emitter/issues"
-  },
-  "peer-dependencies": {
-    "node-phantom-simple": "~1.0.16"
   }
 }
