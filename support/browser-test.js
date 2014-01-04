@@ -1,19 +1,28 @@
 (function () {
   'use strict';
 
+  window.callPhantom(['phantom is happening', '!']);
+
   var emitter = new window.PhantomEmitter('foo-emitter')
     ;
 
-  emitter.on('_phantomReady', function (foo, bar, baz) {
-    window.callPhantom(['phantom is ready!', foo, bar, baz]);
-    emitter.emit('forPhantom', 'I', 'Love', 'JavaScript');
+  emitter.emit('browser', 'firing event before node ready fires');
+
+  emitter.on('_nodeReady', function () {
+    emitter.emit('browser', '[nodeReady]', {I: 'Love'}, 'JavaScript');
   });
 
-  emitter.on('forPhantom', function (i, love, js) {
-    window.callPhantom(['local forPhantom (loopback)', i, love, js]);
+  emitter.on('node', function () {
+    var args = [].slice.call(arguments)
+      ;
+    args.unshift('echoNode');
+    emitter.emit.apply(emitter, args);
   });
 
-  emitter.on('fromPhantom', function (a, b) {
-    window.callPhantom(['local fromPhantom', a, b]);
+  emitter.on('browser', function () {
+    var args = [].slice.call(arguments)
+      ;
+    args.unshift('echoBrowser');
+    emitter.emit.apply(emitter, args);
   });
 }());
