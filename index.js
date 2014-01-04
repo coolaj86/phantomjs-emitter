@@ -124,7 +124,6 @@
       ;
 
     me.listeners(event).forEach(function (fn) {
-      args.push(42);
       fn.apply(null, args);
     });
   };
